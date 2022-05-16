@@ -1,0 +1,90 @@
+*&----------------------------------------------------------------------------------------------*
+*& Descrição: Relatório de Clientes - ALV
+*& Autor: João Paulo Candido da Silva
+*& Data: 01/05/2022
+*&----------------------------------------------------------------------------------------------*
+REPORT zclientes1700_alv.
+
+*&----------------------------------------------------------------------------------------------*
+*&  Tables
+*&----------------------------------------------------------------------------------------------*
+TABLES kna1.
+
+*&----------------------------------------------------------------------------------------------*
+*&  Types / Structure
+*&----------------------------------------------------------------------------------------------*
+TYPES: BEGIN OF ty_kna1,
+         kunnr TYPE kna1-kunnr,
+         name1 TYPE kna1-name1,
+         ort01 TYPE kna1-ort01,
+         regio TYPE kna1-regio,
+         stras TYPE kna1-stras,
+       END OF ty_kna1.
+
+*&----------------------------------------------------------------------------------------------*
+*&  WorkArea
+*&----------------------------------------------------------------------------------------------*
+DATA: wa_kna1     TYPE ty_kna1,
+      wa_fieldcat TYPE slis_fieldcat_alv.
+*&----------------------------------------------------------------------------------------------*
+*&  Internal Table
+*&----------------------------------------------------------------------------------------------*
+DATA: ti_kna1     TYPE TABLE OF ty_kna1,
+      ti_fieldcat TYPE slis_t_fieldcat_alv.
+
+*&----------------------------------------------------------------------------------------------*
+*&  Selection Screen
+*&----------------------------------------------------------------------------------------------*
+SELECT-OPTIONS s_kunnr FOR kna1-kunnr.
+
+*&----------------------------------------------------------------------------------------------*
+*&  Start-Of-Selection - Evento
+*&----------------------------------------------------------------------------------------------*
+START-OF-SELECTION.
+* Open SQL ( Selecionando Dados )
+  SELECT kunnr
+         name1
+         ort01
+         regio
+         stras
+         FROM kna1
+         INTO TABLE ti_kna1
+         WHERE kunnr IN s_kunnr.
+
+* Preenche o Fieldcat.
+  wa_fieldcat-fieldname = 'KUNNR'.
+  wa_fieldcat-tabname   = 'TI_KNA1'.
+  wa_fieldcat-seltext_l = 'Codigo'.
+  APPEND wa_fieldcat TO ti_fieldcat.
+  CLEAR wa_fieldcat.
+
+  wa_fieldcat-fieldname = 'NAME1'.
+  wa_fieldcat-tabname   = 'TI_KNA1'.
+  wa_fieldcat-seltext_l = 'Nome'.
+  APPEND wa_fieldcat TO ti_fieldcat.
+  CLEAR wa_fieldcat.
+
+  wa_fieldcat-fieldname = 'ORT01'.
+  wa_fieldcat-tabname   = 'TI_KNA1'.
+  wa_fieldcat-seltext_l = 'Cidade'.
+  APPEND wa_fieldcat TO ti_fieldcat.
+  CLEAR wa_fieldcat.
+
+  wa_fieldcat-fieldname = 'REGIO'.
+  wa_fieldcat-tabname   = 'TI_KNA1'.
+  wa_fieldcat-seltext_l = 'UF'.
+  APPEND wa_fieldcat TO ti_fieldcat.
+  CLEAR wa_fieldcat.
+
+  wa_fieldcat-fieldname = 'STRAS'.
+  wa_fieldcat-tabname   = 'TI_KNA1'.
+  wa_fieldcat-seltext_l = 'Endereço'.
+  APPEND wa_fieldcat TO ti_fieldcat.
+  CLEAR wa_fieldcat.
+
+* Mostrar o ALV
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      it_fieldcat = ti_fieldcat
+    TABLES
+      t_outtab    = ti_kna1.
